@@ -1,0 +1,4 @@
+# Used for billing: MUST be Title Case
+ENVIRONMENT: Staging
+AWS_PROFILE: alamystaging
+LOG_RETENTION_IN_DAYS: 7

@@ -1,0 +1,4 @@
+# Used for billing: MUST be Title Case
+ENVIRONMENT: Development
+AWS_PROFILE: alamydev
+LOG_RETENTION_IN_DAYS: 7

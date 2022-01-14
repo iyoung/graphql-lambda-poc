@@ -1,0 +1,39 @@
+service: typescript-simple-lambda-template
+
+frameworkVersion: '>=2.23.0 <3.0.0'
+
+plugins:
+  - serverless-plugin-ncc
+  - serverless-deployment-bucket
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  profile: ${self:custom.vars.AWS_PROFILE, 'default'}
+  region: ${opt:region, "eu-west-1"}
+  stage: ${self:custom.stage}
+  deploymentBucket: serverless-deployments-alamy-${self:provider.region}-${self:provider.stage}
+  lambdaHashingVersion: 20201221 # Deprecation code: LAMBDA_HASHING_VERSION_V2
+  logRetentionInDays: ${self:custom.vars.LOG_RETENTION_IN_DAYS, 0}
+
+package:
+  individually: true
+
+custom:
+  stage: ${opt:stage, opt:env, "development"}
+  vars: ${file(config/${self:custom.stage}.yml)}
+  ncc:
+    minify: true
+    quiet: true
+
+functions:
+  sequenceGet:
+    handler: src/main.handler
+    name: ${self:service}-${self:custom.stage}
+    runtime: nodejs14.x
+
+    tags:
+      Org: Alamy
+      Environment: ${self:custom.vars.ENVIRONMENT}
+      Service: Video
+      Version: ${file(./package.json):version}

@@ -1,0 +1,64 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+jobs:
+  release:
+    name: Release
+    # https://github.com/actions/runner/issues/774
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+      - name: test package
+        run: |
+          npm ci
+          npm test
+          npx sls package --stage development
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.SEMVER_TOKEN }}
+          NPM_TOKEN: ${{ secrets.SEMVER_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.SEMVER_TOKEN }}
+        run: npx semantic-release
+
+  deploy:
+   name: Deploy
+   needs: [ release ]
+   runs-on: ubuntu-latest
+   strategy:
+     matrix:
+       node-version: [ 14.x ]
+
+   steps:
+     - uses: actions/checkout@v2
+     - name: Use Node.js ${{ matrix.node-version }}
+       uses: actions/setup-node@v1
+       with:
+         node-version: ${{ matrix.node-version }}
+     - run: |
+         npm ci
+         sed -i '/AWS_PROFILE/d' config/staging.yml
+     - run: echo "TODO add AWS credentials"
+     - name: Deploy serverless
+       run: |
+         mkdir -p ~/.aws
+         echo [default] > ~/.aws/config
+         echo output = json >> ~/.aws/config
+         echo region = eu-west-1 >> ~/.aws/config
+         echo [default] > ~/.aws/credentials
+         echo aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }} >> ~/.aws/credentials
+         echo aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }} >> ~/.aws/credentials
+         npx sls deploy --stage staging

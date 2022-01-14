@@ -1,0 +1,3 @@
+# Used for billing: MUST be Title Case
+ENVIRONMENT: Production
+AWS_PROFILE: alamyproduction

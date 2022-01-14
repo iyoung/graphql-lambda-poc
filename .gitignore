@@ -1,0 +1,8 @@
+.DS_Store
+.eslintcache
+.cache
+*.log
+node_modules/
+.serverless/
+build/
+coverage/

@@ -1,0 +1,6 @@
+{
+  "extends": "./node_modules/@alamy-ops/config-toolchain/eslint/ts",
+  "rules": {
+    "no-console": "off"
+  }
+}

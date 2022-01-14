@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "target": "es5",
+    "lib": ["esnext"],
+    "esModuleInterop": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "typeRoots": ["node_modules/@types"]
+}
